@@ -3,6 +3,7 @@ import { type Employee, type RevenueCenter } from "@shared/schema";
 import { EmployeeCheckIn } from "../components/employee-check-in";
 import { RevenueCenterCard } from "../components/revenue-center-card";
 import { SummaryDashboard } from "../components/summary-dashboard";
+import { HistoricalLaborTracker } from "../components/historical-labor-tracker";
 import { BarChart3, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -101,6 +102,15 @@ export default function Dashboard() {
           revenueCenters={revenueCenters}
           calculateHours={calculateEmployeeHours}
         />
+
+        {/* Historical Labor Tracker */}
+        <div className="mt-6">
+          <HistoricalLaborTracker 
+            employees={allEmployees}
+            revenueCenters={revenueCenters}
+            calculateHours={calculateEmployeeHours}
+          />
+        </div>
       </div>
     </div>
   );
