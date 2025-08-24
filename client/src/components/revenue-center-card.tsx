@@ -9,6 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Utensils, Wine, Leaf, LogOut } from "lucide-react";
+import { EmployeeEditDialog } from "./employee-edit-dialog";
 import { z } from "zod";
 
 const updateCenterSchema = updateRevenueCenterSchema.extend({
@@ -22,7 +23,7 @@ interface RevenueCenterCardProps {
   center: RevenueCenter;
   employees: Employee[];
   allEmployees: Employee[];
-  calculateHours: (startTime: string | Date) => number;
+  calculateHours: (employee: Employee) => number;
 }
 
 const centerConfig = {
@@ -107,7 +108,7 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
     },
   });
 
-  const totalHours = allEmployees.reduce((sum, emp) => sum + calculateHours(emp.startTime), 0);
+  const totalHours = allEmployees.reduce((sum, emp) => sum + calculateHours(emp), 0);
   const perfectHours = center.sales > 0 && center.divisor > 0 ? center.sales / center.divisor : 0;
   const dollarsPerHour = totalHours > 0 ? center.sales / totalHours : 0;
 
@@ -220,8 +221,9 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-gray-600" data-testid={`text-hours-${employee.id}`}>
-                        {calculateHours(employee.startTime).toFixed(1)}hrs
+                        {calculateHours(employee).toFixed(1)}hrs
                       </span>
+                      <EmployeeEditDialog employee={employee} />
                       {isActive && (
                         <Button
                           size="sm"

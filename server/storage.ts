@@ -1,6 +1,7 @@
 import { 
   type Employee, 
-  type InsertEmployee, 
+  type InsertEmployee,
+  type UpdateEmployee,
   type RevenueCenter, 
   type InsertRevenueCenter,
   type UpdateRevenueCenter 
@@ -14,7 +15,8 @@ export interface IStorage {
   getEmployeesByCenter(centerName: string): Promise<Employee[]>;
   getAllEmployeesByCenter(centerName: string): Promise<Employee[]>;
   createEmployee(employee: InsertEmployee): Promise<Employee>;
-  updateEmployee(id: string, updates: Partial<Employee>): Promise<Employee | undefined>;
+  updateEmployee(id: string, updates: UpdateEmployee): Promise<Employee | undefined>;
+  deleteEmployee(id: string): Promise<boolean>;
   
   // Revenue center methods
   getRevenueCenters(): Promise<RevenueCenter[]>;
@@ -72,19 +74,25 @@ export class MemStorage implements IStorage {
     const employee: Employee = { 
       ...insertEmployee, 
       id,
+      endTime: null,
+      unpaidBreakMinutes: 0,
       isActive: "true"
     };
     this.employees.set(id, employee);
     return employee;
   }
 
-  async updateEmployee(id: string, updates: Partial<Employee>): Promise<Employee | undefined> {
+  async updateEmployee(id: string, updates: UpdateEmployee): Promise<Employee | undefined> {
     const employee = this.employees.get(id);
     if (!employee) return undefined;
     
     const updatedEmployee = { ...employee, ...updates };
     this.employees.set(id, updatedEmployee);
     return updatedEmployee;
+  }
+
+  async deleteEmployee(id: string): Promise<boolean> {
+    return this.employees.delete(id);
   }
 
   async getRevenueCenters(): Promise<RevenueCenter[]> {

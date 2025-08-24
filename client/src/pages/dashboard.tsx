@@ -29,11 +29,18 @@ export default function Dashboard() {
     return () => clearInterval(timer);
   }, []);
 
-  const calculateEmployeeHours = (startTime: string | Date): number => {
-    const start = typeof startTime === 'string' ? new Date(startTime) : startTime;
-    const now = currentTime;
-    const diffMs = now.getTime() - start.getTime();
-    return Math.max(0, diffMs / (1000 * 60 * 60));
+  const calculateEmployeeHours = (employee: Employee): number => {
+    if (!employee || !employee.startTime) return 0;
+    
+    const start = typeof employee.startTime === 'string' ? new Date(employee.startTime) : employee.startTime;
+    const end = employee.endTime ? (typeof employee.endTime === 'string' ? new Date(employee.endTime) : employee.endTime) : currentTime;
+    
+    if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
+    
+    const diffMs = end.getTime() - start.getTime();
+    const totalHours = Math.max(0, diffMs / (1000 * 60 * 60));
+    const unpaidBreakHours = (employee.unpaidBreakMinutes || 0) / 60;
+    return Math.max(0, totalHours - unpaidBreakHours);
   };
 
   if (employeesLoading || centersLoading || allEmployeesLoading) {

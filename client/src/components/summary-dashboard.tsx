@@ -5,11 +5,11 @@ import { BarChart3, TrendingUp, TrendingDown, Users } from "lucide-react";
 interface SummaryDashboardProps {
   employees: Employee[];
   revenueCenters: RevenueCenter[];
-  calculateHours: (startTime: string | Date) => number;
+  calculateHours: (employee: Employee) => number;
 }
 
 export function SummaryDashboard({ employees, revenueCenters, calculateHours }: SummaryDashboardProps) {
-  const totalLaborHours = employees.reduce((sum, emp) => sum + calculateHours(emp.startTime), 0);
+  const totalLaborHours = employees.reduce((sum, emp) => sum + calculateHours(emp), 0);
   const totalSales = revenueCenters.reduce((sum, center) => sum + center.sales, 0);
   const overallDollarsPerHour = totalLaborHours > 0 ? totalSales / totalLaborHours : 0;
   const totalPerfectHours = revenueCenters.reduce((sum, center) => {

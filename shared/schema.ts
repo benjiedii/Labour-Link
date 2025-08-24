@@ -7,7 +7,9 @@ export const employees = pgTable("employees", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   startTime: timestamp("start_time").notNull(),
+  endTime: timestamp("end_time"),
   revenueCenter: text("revenue_center").notNull(),
+  unpaidBreakMinutes: real("unpaid_break_minutes").notNull().default(0),
   isActive: text("is_active").notNull().default("true"),
 });
 
@@ -26,6 +28,18 @@ export const insertEmployeeSchema = createInsertSchema(employees).pick({
   startTime: z.string().or(z.date()).transform((val) => new Date(val)),
 });
 
+export const updateEmployeeSchema = createInsertSchema(employees).pick({
+  name: true,
+  startTime: true,
+  endTime: true,
+  unpaidBreakMinutes: true,
+  isActive: true,
+}).extend({
+  startTime: z.string().or(z.date()).transform((val) => new Date(val)).optional(),
+  endTime: z.string().or(z.date()).transform((val) => val ? new Date(val) : null).optional(),
+  unpaidBreakMinutes: z.coerce.number().min(0, "Break minutes must be positive").optional(),
+}).partial();
+
 export const insertRevenueCenterSchema = createInsertSchema(revenueCenters).pick({
   name: true,
   sales: true,
@@ -41,6 +55,7 @@ export const updateRevenueCenterSchema = createInsertSchema(revenueCenters).pick
 });
 
 export type InsertEmployee = z.infer<typeof insertEmployeeSchema>;
+export type UpdateEmployee = z.infer<typeof updateEmployeeSchema>;
 export type Employee = typeof employees.$inferSelect;
 export type InsertRevenueCenter = z.infer<typeof insertRevenueCenterSchema>;
 export type UpdateRevenueCenter = z.infer<typeof updateRevenueCenterSchema>;

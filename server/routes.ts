@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertEmployeeSchema, updateRevenueCenterSchema } from "@shared/schema";
+import { insertEmployeeSchema, updateEmployeeSchema, updateRevenueCenterSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -58,10 +58,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/employees/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = updateEmployeeSchema.parse(req.body);
+      const employee = await storage.updateEmployee(id, validatedData);
+      if (!employee) {
+        res.status(404).json({ message: "Employee not found" });
+        return;
+      }
+      res.json(employee);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid employee data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to update employee" });
+      }
+    }
+  });
+
   app.patch("/api/employees/:id/checkout", async (req, res) => {
     try {
       const { id } = req.params;
-      const employee = await storage.updateEmployee(id, { isActive: "false" });
+      const employee = await storage.updateEmployee(id, { 
+        isActive: "false",
+        endTime: new Date()
+      });
       if (!employee) {
         res.status(404).json({ message: "Employee not found" });
         return;
@@ -69,6 +91,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(employee);
     } catch (error) {
       res.status(500).json({ message: "Failed to checkout employee" });
+    }
+  });
+
+  app.delete("/api/employees/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteEmployee(id);
+      if (!deleted) {
+        res.status(404).json({ message: "Employee not found" });
+        return;
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete employee" });
     }
   });
 
