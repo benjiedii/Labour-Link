@@ -189,36 +189,63 @@ export function HistoricalLaborTracker({ employees, revenueCenters, calculateHou
                 </Card>
               </div>
 
-              {/* Revenue Center Breakdown */}
+              {/* Revenue Center Labor Breakdown */}
               <div className="space-y-4">
-                <h4 className="font-medium text-gray-800">Breakdown by Revenue Center</h4>
-                {historicalData.centerBreakdown.map((center) => (
-                  <Card key={center.name} className="border-l-4 border-l-blue-500">
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <h5 className="font-semibold text-lg capitalize">{center.name}</h5>
-                        <div className="text-right">
-                          <div className="text-lg font-bold">{center.hours.toFixed(1)} hrs</div>
-                          <div className="text-sm text-gray-600">${center.dollarsPerHour.toFixed(0)}/hr</div>
-                        </div>
-                      </div>
-                      
-                      {center.employees.length > 0 && (
-                        <div className="mt-3">
-                          <h6 className="text-sm font-medium text-gray-700 mb-2">Employees Working:</h6>
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                            {center.employees.map((emp) => (
-                              <div key={emp.name} className="text-sm bg-gray-50 px-2 py-1 rounded">
-                                <span className="font-medium">{emp.name}</span>
-                                <span className="text-gray-600 ml-1">({emp.hours.toFixed(1)}h)</span>
-                              </div>
-                            ))}
+                <h4 className="font-medium text-gray-800 mb-4">Labor Hours by Revenue Center</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {historicalData.centerBreakdown.map((center) => {
+                    const centerConfig = {
+                      dining: { color: 'emerald', icon: '🍽️' },
+                      lounge: { color: 'purple', icon: '🍷' }, 
+                      patio: { color: 'orange', icon: '🌿' }
+                    };
+                    const config = centerConfig[center.name.toLowerCase() as keyof typeof centerConfig] || { color: 'blue', icon: '🏢' };
+                    
+                    return (
+                      <Card key={center.name} className={`border-2 border-${config.color}-200 bg-${config.color}-50`}>
+                        <CardContent className="p-4">
+                          <div className="text-center mb-4">
+                            <div className="text-2xl mb-2">{config.icon}</div>
+                            <h5 className={`font-semibold text-lg capitalize text-${config.color}-800 mb-1`}>
+                              {center.name}
+                            </h5>
+                            <div className={`text-3xl font-bold text-${config.color}-900 mb-1`}>
+                              {center.hours.toFixed(1)}
+                            </div>
+                            <div className="text-sm text-gray-600 mb-2">Labor Hours</div>
+                            <div className={`text-lg font-semibold text-${config.color}-700`}>
+                              ${center.dollarsPerHour.toFixed(0)}/hr
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
+                          
+                          {center.employees.length > 0 && (
+                            <div className="border-t border-gray-200 pt-3">
+                              <h6 className="text-xs font-medium text-gray-700 mb-2 text-center">
+                                Employees Working ({center.employees.length})
+                              </h6>
+                              <div className="space-y-1">
+                                {center.employees.map((emp) => (
+                                  <div key={emp.name} className="flex justify-between items-center text-sm bg-white px-2 py-1 rounded border">
+                                    <span className="font-medium text-gray-700">{emp.name}</span>
+                                    <span className={`text-${config.color}-600 font-semibold`}>
+                                      {emp.hours.toFixed(1)}h
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {center.employees.length === 0 && (
+                            <div className="border-t border-gray-200 pt-3 text-center">
+                              <span className="text-sm text-gray-500">No employees working</span>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
