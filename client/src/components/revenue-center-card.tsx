@@ -156,7 +156,7 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
               name="divisor"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Perfect Hours Divisor</FormLabel>
+                  <FormLabel>Target DPH</FormLabel>
                   <FormControl>
                     <Input 
                       type="number" 
