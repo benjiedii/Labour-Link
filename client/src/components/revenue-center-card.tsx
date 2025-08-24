@@ -21,7 +21,7 @@ type UpdateCenterFormData = z.infer<typeof updateCenterSchema>;
 interface RevenueCenterCardProps {
   center: RevenueCenter;
   employees: Employee[];
-  calculateHours: (startTime: string) => number;
+  calculateHours: (startTime: string | Date) => number;
 }
 
 const centerConfig = {

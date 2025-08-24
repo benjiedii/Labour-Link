@@ -5,7 +5,7 @@ import { BarChart3, TrendingUp, TrendingDown, Users } from "lucide-react";
 interface SummaryDashboardProps {
   employees: Employee[];
   revenueCenters: RevenueCenter[];
-  calculateHours: (startTime: string) => number;
+  calculateHours: (startTime: string | Date) => number;
 }
 
 export function SummaryDashboard({ employees, revenueCenters, calculateHours }: SummaryDashboardProps) {

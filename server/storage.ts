@@ -90,7 +90,12 @@ export class MemStorage implements IStorage {
 
   async createRevenueCenter(insertCenter: InsertRevenueCenter): Promise<RevenueCenter> {
     const id = randomUUID();
-    const center: RevenueCenter = { ...insertCenter, id };
+    const center: RevenueCenter = { 
+      id,
+      name: insertCenter.name,
+      sales: insertCenter.sales ?? 0,
+      divisor: insertCenter.divisor ?? 35
+    };
     this.revenueCenters.set(center.name, center);
     return center;
   }

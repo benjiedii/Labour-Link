@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { type Employee, type RevenueCenter } from "@shared/schema";
-import { EmployeeCheckIn } from "@/components/employee-check-in";
-import { RevenueCenterCard } from "@/components/revenue-center-card";
-import { SummaryDashboard } from "@/components/summary-dashboard";
+import { EmployeeCheckIn } from "../components/employee-check-in";
+import { RevenueCenterCard } from "../components/revenue-center-card";
+import { SummaryDashboard } from "../components/summary-dashboard";
 import { BarChart3, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -25,8 +25,8 @@ export default function Dashboard() {
     return () => clearInterval(timer);
   }, []);
 
-  const calculateEmployeeHours = (startTime: string): number => {
-    const start = new Date(startTime);
+  const calculateEmployeeHours = (startTime: string | Date): number => {
+    const start = typeof startTime === 'string' ? new Date(startTime) : startTime;
     const now = currentTime;
     const diffMs = now.getTime() - start.getTime();
     return Math.max(0, diffMs / (1000 * 60 * 60));

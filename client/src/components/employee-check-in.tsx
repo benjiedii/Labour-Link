@@ -13,8 +13,10 @@ import { Button } from "@/components/ui/button";
 import { UserPlus } from "lucide-react";
 import { z } from "zod";
 
-const checkInSchema = insertEmployeeSchema.extend({
+const checkInSchema = z.object({
+  name: z.string().min(1, "Name is required"),
   startTime: z.string().min(1, "Start time is required"),
+  revenueCenter: z.string().min(1, "Revenue center is required"),
 });
 
 type CheckInFormData = z.infer<typeof checkInSchema>;
