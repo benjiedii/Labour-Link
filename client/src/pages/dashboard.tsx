@@ -13,6 +13,10 @@ export default function Dashboard() {
     queryKey: ["/api/employees/active"],
   });
 
+  const { data: allEmployees = [], isLoading: allEmployeesLoading } = useQuery<Employee[]>({
+    queryKey: ["/api/employees"],
+  });
+
   const { data: revenueCenters = [], isLoading: centersLoading } = useQuery<RevenueCenter[]>({
     queryKey: ["/api/revenue-centers"],
   });
@@ -32,7 +36,7 @@ export default function Dashboard() {
     return Math.max(0, diffMs / (1000 * 60 * 60));
   };
 
-  if (employeesLoading || centersLoading) {
+  if (employeesLoading || centersLoading || allEmployeesLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -71,11 +75,13 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {revenueCenters.map((center) => {
             const centerEmployees = employees.filter(emp => emp.revenueCenter === center.name);
+            const allCenterEmployees = allEmployees.filter(emp => emp.revenueCenter === center.name);
             return (
               <RevenueCenterCard 
                 key={center.name}
                 center={center}
                 employees={centerEmployees}
+                allEmployees={allCenterEmployees}
                 calculateHours={calculateEmployeeHours}
               />
             );

@@ -34,6 +34,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/employees/center/:centerName/all", async (req, res) => {
+    try {
+      const { centerName } = req.params;
+      const employees = await storage.getAllEmployeesByCenter(centerName);
+      res.json(employees);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch all employees by center" });
+    }
+  });
+
   app.post("/api/employees", async (req, res) => {
     try {
       const validatedData = insertEmployeeSchema.parse(req.body);

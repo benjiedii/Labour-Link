@@ -35,6 +35,9 @@ export const insertRevenueCenterSchema = createInsertSchema(revenueCenters).pick
 export const updateRevenueCenterSchema = createInsertSchema(revenueCenters).pick({
   sales: true,
   divisor: true,
+}).extend({
+  sales: z.coerce.number().min(0, "Sales must be positive"),
+  divisor: z.coerce.number().min(0.1, "Divisor must be greater than 0"),
 });
 
 export type InsertEmployee = z.infer<typeof insertEmployeeSchema>;

@@ -21,6 +21,7 @@ type UpdateCenterFormData = z.infer<typeof updateCenterSchema>;
 interface RevenueCenterCardProps {
   center: RevenueCenter;
   employees: Employee[];
+  allEmployees: Employee[];
   calculateHours: (startTime: string | Date) => number;
 }
 
@@ -48,7 +49,7 @@ const centerConfig = {
   },
 };
 
-export function RevenueCenterCard({ center, employees, calculateHours }: RevenueCenterCardProps) {
+export function RevenueCenterCard({ center, employees, allEmployees, calculateHours }: RevenueCenterCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -106,7 +107,7 @@ export function RevenueCenterCard({ center, employees, calculateHours }: Revenue
     },
   });
 
-  const totalHours = employees.reduce((sum, emp) => sum + calculateHours(emp.startTime), 0);
+  const totalHours = allEmployees.reduce((sum, emp) => sum + calculateHours(emp.startTime), 0);
   const perfectHours = center.sales > 0 && center.divisor > 0 ? center.sales / center.divisor : 0;
   const dollarsPerHour = totalHours > 0 ? center.sales / totalHours : 0;
 

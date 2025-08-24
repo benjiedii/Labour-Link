@@ -12,6 +12,7 @@ export interface IStorage {
   getEmployees(): Promise<Employee[]>;
   getActiveEmployees(): Promise<Employee[]>;
   getEmployeesByCenter(centerName: string): Promise<Employee[]>;
+  getAllEmployeesByCenter(centerName: string): Promise<Employee[]>;
   createEmployee(employee: InsertEmployee): Promise<Employee>;
   updateEmployee(id: string, updates: Partial<Employee>): Promise<Employee | undefined>;
   
@@ -57,6 +58,12 @@ export class MemStorage implements IStorage {
   async getEmployeesByCenter(centerName: string): Promise<Employee[]> {
     return Array.from(this.employees.values()).filter(
       emp => emp.revenueCenter === centerName && emp.isActive === "true"
+    );
+  }
+
+  async getAllEmployeesByCenter(centerName: string): Promise<Employee[]> {
+    return Array.from(this.employees.values()).filter(
+      emp => emp.revenueCenter === centerName
     );
   }
 
