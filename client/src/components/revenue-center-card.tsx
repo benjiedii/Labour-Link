@@ -195,38 +195,48 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
           <div className="text-sm text-gray-700">Dollars per Hour</div>
         </div>
 
-        {/* Active Employees */}
+        {/* All Employees */}
         <div>
           <h4 className="text-sm font-medium text-gray-700 mb-2">
-            Active Employees ({employees.length})
+            All Employees ({allEmployees.length})
           </h4>
           <div className="space-y-2">
-            {employees.length === 0 ? (
+            {allEmployees.length === 0 ? (
               <div className="p-3 bg-gray-50 rounded text-center text-gray-500 text-sm">
-                No active employees
+                No employees
               </div>
             ) : (
-              employees.map((employee) => (
-                <div key={employee.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                  <span className="font-medium text-gray-900" data-testid={`text-employee-${employee.id}`}>
-                    {employee.name}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600" data-testid={`text-hours-${employee.id}`}>
-                      {calculateHours(employee.startTime).toFixed(1)}hrs
-                    </span>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => checkoutMutation.mutate(employee.id)}
-                      disabled={checkoutMutation.isPending}
-                      data-testid={`button-checkout-${employee.id}`}
-                    >
-                      <LogOut className="w-3 h-3" />
-                    </Button>
+              allEmployees.map((employee) => {
+                const isActive = employee.isActive === "true";
+                return (
+                  <div key={employee.id} className={`flex justify-between items-center p-2 rounded ${isActive ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'}`}>
+                    <div className="flex items-center gap-2">
+                      <span className={`font-medium ${isActive ? 'text-green-900' : 'text-gray-600'}`} data-testid={`text-employee-${employee.id}`}>
+                        {employee.name}
+                      </span>
+                      <span className={`text-xs px-2 py-1 rounded-full ${isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                        {isActive ? 'Active' : 'Clocked Out'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-600" data-testid={`text-hours-${employee.id}`}>
+                        {calculateHours(employee.startTime).toFixed(1)}hrs
+                      </span>
+                      {isActive && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => checkoutMutation.mutate(employee.id)}
+                          disabled={checkoutMutation.isPending}
+                          data-testid={`button-checkout-${employee.id}`}
+                        >
+                          <LogOut className="w-3 h-3" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
