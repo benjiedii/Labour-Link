@@ -22,6 +22,8 @@ export const insertEmployeeSchema = createInsertSchema(employees).pick({
   name: true,
   startTime: true,
   revenueCenter: true,
+}).extend({
+  startTime: z.string().or(z.date()).transform((val) => new Date(val)),
 });
 
 export const insertRevenueCenterSchema = createInsertSchema(revenueCenters).pick({
