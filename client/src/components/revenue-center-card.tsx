@@ -196,27 +196,27 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
           <div className="text-sm text-gray-700">Dollars per Hour</div>
         </div>
 
-        {/* All Employees */}
+        {/* Employee Groups */}
         <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-2">
+          <h4 className="text-sm font-medium text-gray-700 mb-3">
             All Employees ({allEmployees.length})
           </h4>
-          <div className="space-y-2">
-            {allEmployees.length === 0 ? (
-              <div className="p-3 bg-gray-50 rounded text-center text-gray-500 text-sm">
-                No employees
+          
+          {/* Active Employees Section */}
+          {employees.length > 0 && (
+            <div className="mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <h5 className="text-xs font-semibold text-green-700 uppercase tracking-wide">
+                  Active ({employees.length})
+                </h5>
               </div>
-            ) : (
-              allEmployees.map((employee) => {
-                const isActive = employee.isActive === "true";
-                return (
-                  <div key={employee.id} className={`flex justify-between items-center p-2 rounded ${isActive ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'}`}>
+              <div className="space-y-2">
+                {employees.map((employee) => (
+                  <div key={employee.id} className="flex justify-between items-center p-2 bg-green-50 border border-green-200 rounded">
                     <div className="flex items-center gap-2">
-                      <span className={`font-medium ${isActive ? 'text-green-900' : 'text-gray-600'}`} data-testid={`text-employee-${employee.id}`}>
+                      <span className="font-medium text-green-900" data-testid={`text-employee-${employee.id}`}>
                         {employee.name}
-                      </span>
-                      <span className={`text-xs px-2 py-1 rounded-full ${isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-                        {isActive ? 'Active' : 'Clocked Out'}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -224,23 +224,60 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
                         {calculateHours(employee).toFixed(1)}hrs
                       </span>
                       <EmployeeEditDialog employee={employee} />
-                      {isActive && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => checkoutMutation.mutate(employee.id)}
-                          disabled={checkoutMutation.isPending}
-                          data-testid={`button-checkout-${employee.id}`}
-                        >
-                          <LogOut className="w-3 h-3" />
-                        </Button>
-                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => checkoutMutation.mutate(employee.id)}
+                        disabled={checkoutMutation.isPending}
+                        data-testid={`button-checkout-${employee.id}`}
+                      >
+                        <LogOut className="w-3 h-3" />
+                      </Button>
                     </div>
                   </div>
-                );
-              })
-            )}
-          </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Clocked Out Employees Section */}
+          {(() => {
+            const clockedOutEmployees = allEmployees.filter(emp => emp.isActive === "false");
+            return clockedOutEmployees.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                  <h5 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                    Clocked Out ({clockedOutEmployees.length})
+                  </h5>
+                </div>
+                <div className="space-y-2">
+                  {clockedOutEmployees.map((employee) => (
+                    <div key={employee.id} className="flex justify-between items-center p-2 bg-gray-50 border border-gray-200 rounded">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-gray-600" data-testid={`text-employee-${employee.id}`}>
+                          {employee.name}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600" data-testid={`text-hours-${employee.id}`}>
+                          {calculateHours(employee).toFixed(1)}hrs
+                        </span>
+                        <EmployeeEditDialog employee={employee} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+          
+          {/* No Employees State */}
+          {allEmployees.length === 0 && (
+            <div className="p-3 bg-gray-50 rounded text-center text-gray-500 text-sm">
+              No employees
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
