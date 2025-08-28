@@ -4,8 +4,10 @@ import { RevenueCenterCard } from "../components/revenue-center-card";
 import { SummaryDashboard } from "../components/summary-dashboard";
 import { HistoricalLaborTracker } from "../components/historical-labor-tracker";
 import { storage } from "../lib/localStorage";
-import { BarChart3, Clock } from "lucide-react";
+import { BarChart3, Clock, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -13,6 +15,7 @@ export default function Dashboard() {
   const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
   const [revenueCenters, setRevenueCenters] = useState<RevenueCenter[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   // Load data from localStorage
   const loadData = () => {
@@ -28,6 +31,32 @@ export default function Dashboard() {
       console.error('Error loading data:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleClearAllPunches = () => {
+    const confirmMessage = `Are you sure you want to clear all employee punches? This will remove all current and historical employee data. This action cannot be undone.`;
+    
+    if (confirm(confirmMessage)) {
+      try {
+        storage.clearAllEmployees();
+        
+        // Trigger event for other components to update
+        window.dispatchEvent(new CustomEvent('localStorageUpdate'));
+        
+        loadData();
+        
+        toast({
+          title: "Success",
+          description: "All employee punches have been cleared",
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to clear employee punches",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -97,6 +126,16 @@ export default function Dashboard() {
                 <Clock className="w-4 h-4 mr-1" />
                 Current Time: {currentTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearAllPunches}
+                className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                data-testid="button-clear-all-punches"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Clear All Punches
+              </Button>
             </div>
           </div>
         </div>

@@ -122,6 +122,10 @@ export class LocalStorage {
   }
 
   // Utility methods
+  clearAllEmployees(): void {
+    localStorage.removeItem(STORAGE_KEYS.EMPLOYEES);
+  }
+
   clearAll(): void {
     localStorage.removeItem(STORAGE_KEYS.EMPLOYEES);
     localStorage.removeItem(STORAGE_KEYS.REVENUE_CENTERS);
