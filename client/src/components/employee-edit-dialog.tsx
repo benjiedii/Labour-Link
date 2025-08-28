@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateEmployeeSchema, type Employee, type UpdateEmployee } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
+import { storage } from "@/lib/localStorage";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -28,8 +27,9 @@ interface EmployeeEditDialogProps {
 
 export function EmployeeEditDialog({ employee, onClose }: EmployeeEditDialogProps) {
   const [open, setOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
 
   const formatDateTimeForInput = (date: Date | string | null): string => {
     if (!date) return "";
@@ -55,69 +55,65 @@ export function EmployeeEditDialog({ employee, onClose }: EmployeeEditDialogProp
     },
   });
 
-  const updateMutation = useMutation({
-    mutationFn: async (data: EditFormData) => {
+  const onSubmit = async (data: EditFormData) => {
+    setIsUpdating(true);
+    
+    try {
       const today = new Date().toISOString().split('T')[0];
-      const updateData: UpdateEmployee = {
+      const updateData: Partial<Employee> = {
         name: data.name,
         startTime: new Date(`${today}T${data.startTime}:00`),
         endTime: data.endTime ? new Date(`${today}T${data.endTime}:00`) : null,
         unpaidBreakMinutes: data.unpaidBreakMinutes,
       };
       
-      const response = await apiRequest("PATCH", `/api/employees/${employee.id}`, updateData);
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/employees/active"] });
+      storage.updateEmployee(employee.id, updateData);
+      
+      // Trigger event for other components to update
+      window.dispatchEvent(new CustomEvent('localStorageUpdate'));
+      
       setOpen(false);
       if (onClose) onClose();
       toast({
         title: "Success",
         description: "Employee updated successfully",
       });
-    },
-    onError: () => {
+    } catch (error) {
       toast({
         title: "Error",
         description: "Failed to update employee",
         variant: "destructive",
       });
-    },
-  });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
-  const deleteMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("DELETE", `/api/employees/${employee.id}`);
-      return response;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/employees/active"] });
+  const handleDelete = async () => {
+    if (!confirm(`Are you sure you want to delete ${employee.name}?`)) return;
+    
+    setIsDeleting(true);
+    
+    try {
+      storage.deleteEmployee(employee.id);
+      
+      // Trigger event for other components to update
+      window.dispatchEvent(new CustomEvent('localStorageUpdate'));
+      
       setOpen(false);
       if (onClose) onClose();
       toast({
         title: "Success",
         description: "Employee deleted successfully",
       });
-    },
-    onError: () => {
+    } catch (error) {
       toast({
         title: "Error",
         description: "Failed to delete employee",
         variant: "destructive",
       });
-    },
-  });
-
-  const onSubmit = (data: EditFormData) => {
-    updateMutation.mutate(data);
-  };
-
-  const handleDelete = () => {
-    if (confirm(`Are you sure you want to delete ${employee.name}?`)) {
-      deleteMutation.mutate();
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -218,11 +214,11 @@ export function EmployeeEditDialog({ employee, onClose }: EmployeeEditDialogProp
                 type="button" 
                 variant="destructive"
                 onClick={handleDelete}
-                disabled={deleteMutation.isPending}
+                disabled={isDeleting}
                 data-testid="button-delete-employee"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                {isDeleting ? "Deleting..." : "Delete"}
               </Button>
               
               <div className="flex gap-2">
@@ -237,11 +233,11 @@ export function EmployeeEditDialog({ employee, onClose }: EmployeeEditDialogProp
                 </Button>
                 <Button 
                   type="submit"
-                  disabled={updateMutation.isPending}
+                  disabled={isUpdating}
                   data-testid="button-save-employee"
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  {updateMutation.isPending ? "Saving..." : "Save"}
+                  {isUpdating ? "Saving..." : "Save"}
                 </Button>
               </div>
             </div>

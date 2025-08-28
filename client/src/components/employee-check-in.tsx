@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertEmployeeSchema, type InsertEmployee } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
+import { storage } from "@/lib/localStorage";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -21,9 +20,13 @@ const checkInSchema = z.object({
 
 type CheckInFormData = z.infer<typeof checkInSchema>;
 
-export function EmployeeCheckIn() {
+interface EmployeeCheckInProps {
+  onEmployeeAdded?: () => void;
+}
+
+export function EmployeeCheckIn({ onEmployeeAdded }: EmployeeCheckInProps) {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<CheckInFormData>({
     resolver: zodResolver(checkInSchema),
@@ -34,44 +37,45 @@ export function EmployeeCheckIn() {
     },
   });
 
-  const checkInMutation = useMutation({
-    mutationFn: async (data: CheckInFormData) => {
+  const onSubmit = async (data: CheckInFormData) => {
+    setIsSubmitting(true);
+    
+    try {
       const today = new Date().toISOString().split('T')[0];
       const startDateTime = new Date(`${today}T${data.startTime}:00`);
       
-      const employeeData: InsertEmployee = {
+      const employeeData = {
         name: data.name,
         startTime: startDateTime,
         revenueCenter: data.revenueCenter,
       };
       
-      const response = await apiRequest("POST", "/api/employees", employeeData);
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/employees/active"] });
+      storage.createEmployee(employeeData);
+      
+      // Trigger event for other components to update
+      window.dispatchEvent(new CustomEvent('localStorageUpdate'));
+      
       form.reset({
         name: "",
         startTime: new Date().toTimeString().slice(0, 5),
         revenueCenter: "",
       });
+      
       toast({
         title: "Success",
         description: "Employee checked in successfully",
       });
-    },
-    onError: () => {
+      
+      onEmployeeAdded?.();
+    } catch (error) {
       toast({
         title: "Error",
         description: "Failed to check in employee",
         variant: "destructive",
       });
-    },
-  });
-
-  const onSubmit = (data: CheckInFormData) => {
-    checkInMutation.mutate(data);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -148,11 +152,11 @@ export function EmployeeCheckIn() {
               <Button 
                 type="submit" 
                 className="w-full bg-blue-600 hover:bg-blue-700"
-                disabled={checkInMutation.isPending}
+                disabled={isSubmitting}
                 data-testid="button-check-in"
               >
                 <UserPlus className="w-4 h-4 mr-2" />
-                {checkInMutation.isPending ? "Checking In..." : "Check In"}
+                {isSubmitting ? "Checking In..." : "Check In"}
               </Button>
             </div>
           </form>

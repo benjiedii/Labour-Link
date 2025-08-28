@@ -1,8 +1,8 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { updateRevenueCenterSchema, type RevenueCenter, type Employee } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
+import { storage } from "@/lib/localStorage";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
@@ -24,6 +24,7 @@ interface RevenueCenterCardProps {
   employees: Employee[];
   allEmployees: Employee[];
   calculateHours: (employee: Employee) => number;
+  onDataChanged?: () => void;
 }
 
 const centerConfig = {
@@ -50,9 +51,9 @@ const centerConfig = {
   },
 };
 
-export function RevenueCenterCard({ center, employees, allEmployees, calculateHours }: RevenueCenterCardProps) {
+export function RevenueCenterCard({ center, employees, allEmployees, calculateHours, onDataChanged }: RevenueCenterCardProps) {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [isUpdating, setIsUpdating] = useState(false);
   
   const config = centerConfig[center.name as keyof typeof centerConfig];
   const Icon = config?.icon || Utensils;
@@ -65,48 +66,56 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
     },
   });
 
-  const updateMutation = useMutation({
-    mutationFn: async (data: UpdateCenterFormData) => {
-      const response = await apiRequest("PATCH", `/api/revenue-centers/${center.name}`, data);
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/revenue-centers"] });
+  const handleUpdateCenter = async (data: UpdateCenterFormData) => {
+    setIsUpdating(true);
+    
+    try {
+      storage.updateRevenueCenter(center.name, data);
+      
+      // Trigger event for other components to update
+      window.dispatchEvent(new CustomEvent('localStorageUpdate'));
+      
       toast({
         title: "Success",
         description: `${center.name.charAt(0).toUpperCase() + center.name.slice(1)} center updated`,
       });
-    },
-    onError: () => {
+      
+      onDataChanged?.();
+    } catch (error) {
       toast({
         title: "Error",
         description: "Failed to update revenue center",
         variant: "destructive",
       });
-    },
-  });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
-  const checkoutMutation = useMutation({
-    mutationFn: async (employeeId: string) => {
-      const response = await apiRequest("PATCH", `/api/employees/${employeeId}/checkout`);
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/employees/active"] });
+  const handleCheckoutEmployee = async (employeeId: string) => {
+    try {
+      storage.updateEmployee(employeeId, { 
+        isActive: "false",
+        endTime: new Date()
+      });
+      
+      // Trigger event for other components to update
+      window.dispatchEvent(new CustomEvent('localStorageUpdate'));
+      
       toast({
         title: "Success",
         description: "Employee checked out successfully",
       });
-    },
-    onError: () => {
+      
+      onDataChanged?.();
+    } catch (error) {
       toast({
         title: "Error",
         description: "Failed to checkout employee",
         variant: "destructive",
       });
-    },
-  });
+    }
+  };
 
   const totalHours = allEmployees.reduce((sum, emp) => sum + calculateHours(emp), 0);
   const perfectHours = center.sales > 0 && center.divisor > 0 ? center.sales / center.divisor : 0;
@@ -115,7 +124,7 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
   const handleFormChange = () => {
     const currentValues = form.getValues();
     if (currentValues.sales !== center.sales || currentValues.divisor !== center.divisor) {
-      updateMutation.mutate(currentValues);
+      handleUpdateCenter(currentValues);
     }
   };
 
@@ -227,8 +236,8 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => checkoutMutation.mutate(employee.id)}
-                        disabled={checkoutMutation.isPending}
+                        onClick={() => handleCheckoutEmployee(employee.id)}
+                        disabled={false}
                         data-testid={`button-checkout-${employee.id}`}
                       >
                         <LogOut className="w-3 h-3" />

@@ -1,33 +1,60 @@
-import { useQuery } from "@tanstack/react-query";
 import { type Employee, type RevenueCenter } from "@shared/schema";
 import { EmployeeCheckIn } from "../components/employee-check-in";
 import { RevenueCenterCard } from "../components/revenue-center-card";
 import { SummaryDashboard } from "../components/summary-dashboard";
 import { HistoricalLaborTracker } from "../components/historical-labor-tracker";
+import { storage } from "../lib/localStorage";
 import { BarChart3, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function Dashboard() {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
+  const [revenueCenters, setRevenueCenters] = useState<RevenueCenter[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { data: employees = [], isLoading: employeesLoading } = useQuery<Employee[]>({
-    queryKey: ["/api/employees/active"],
-  });
-
-  const { data: allEmployees = [], isLoading: allEmployeesLoading } = useQuery<Employee[]>({
-    queryKey: ["/api/employees"],
-  });
-
-  const { data: revenueCenters = [], isLoading: centersLoading } = useQuery<RevenueCenter[]>({
-    queryKey: ["/api/revenue-centers"],
-  });
+  // Load data from localStorage
+  const loadData = () => {
+    try {
+      const activeEmployees = storage.getActiveEmployees();
+      const allEmployeesData = storage.getEmployees();
+      const centers = storage.getRevenueCenters();
+      
+      setEmployees(activeEmployees);
+      setAllEmployees(allEmployeesData);
+      setRevenueCenters(centers);
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
+    // Load initial data
+    loadData();
+    
+    // Set up time update interval
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
 
-    return () => clearInterval(timer);
+    // Set up storage event listener for cross-tab synchronization
+    const handleStorageChange = () => {
+      loadData();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Custom event for same-tab updates
+    window.addEventListener('localStorageUpdate', handleStorageChange);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('localStorageUpdate', handleStorageChange);
+    };
   }, []);
 
   const calculateEmployeeHours = (employee: Employee): number => {
@@ -44,7 +71,7 @@ export default function Dashboard() {
     return Math.max(0, totalHours - unpaidBreakHours);
   };
 
-  if (employeesLoading || centersLoading || allEmployeesLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -77,7 +104,7 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Employee Check-In */}
-        <EmployeeCheckIn />
+        <EmployeeCheckIn onEmployeeAdded={loadData} />
 
         {/* Revenue Center Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
@@ -91,6 +118,7 @@ export default function Dashboard() {
                 employees={centerEmployees}
                 allEmployees={allCenterEmployees}
                 calculateHours={calculateEmployeeHours}
+                onDataChanged={loadData}
               />
             );
           })}
