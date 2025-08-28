@@ -112,9 +112,9 @@ export class LocalStorage {
 
   private initializeDefaultRevenueCenters(): RevenueCenter[] {
     const defaultCenters: RevenueCenter[] = [
-      { id: crypto.randomUUID(), name: "dining", sales: 0, divisor: 35.5 },
-      { id: crypto.randomUUID(), name: "lounge", sales: 0, divisor: 42.0 },
-      { id: crypto.randomUUID(), name: "patio", sales: 0, divisor: 38.5 }
+      { id: crypto.randomUUID(), name: "dining", sales: 0, divisor: 185 },
+      { id: crypto.randomUUID(), name: "lounge", sales: 0, divisor: 230 },
+      { id: crypto.randomUUID(), name: "patio", sales: 0, divisor: 208 }
     ];
     
     localStorage.setItem(STORAGE_KEYS.REVENUE_CENTERS, JSON.stringify(defaultCenters));
