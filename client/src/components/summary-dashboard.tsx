@@ -88,24 +88,7 @@ export function SummaryDashboard({ employees, revenueCenters, calculateHours }: 
               </div>
             </div>
             
-            <div className={`p-4 rounded-lg border ${isAboveTarget ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">Revenue per Hour</span>
-                {isAboveTarget ? (
-                  <TrendingUp className="text-green-500 w-5 h-5" />
-                ) : (
-                  <TrendingDown className="text-red-500 w-5 h-5" />
-                )}
-              </div>
-              <div className="mt-1">
-                <span className={`text-lg font-semibold ${isAboveTarget ? 'text-green-600' : 'text-red-600'}`} data-testid="text-revenue-status">
-                  {isAboveTarget ? 'Above Target' : 'Below Target'}
-                </span>
-                <p className="text-sm text-gray-600" data-testid="text-revenue-comparison">
-                  ${overallDollarsPerHour.toFixed(2)}/hr vs ${targetRevenuePerHour.toFixed(2)} target
-                </p>
-              </div>
-            </div>
+            
             
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center justify-between">
