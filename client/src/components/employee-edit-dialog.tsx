@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Edit, Trash2, Save, X } from "lucide-react";
 import { z } from "zod";
 
@@ -16,6 +17,7 @@ const editFormSchema = z.object({
   startTime: z.string().min(1, "Start time is required"),
   endTime: z.string().optional(),
   unpaidBreakMinutes: z.coerce.number().min(0, "Break minutes must be positive"),
+  revenueCenter: z.string().min(1, "Revenue center is required"),
 });
 
 type EditFormData = z.infer<typeof editFormSchema>;
@@ -52,6 +54,7 @@ export function EmployeeEditDialog({ employee, onClose }: EmployeeEditDialogProp
       startTime: formatTimeForInput(employee.startTime),
       endTime: formatTimeForInput(employee.endTime),
       unpaidBreakMinutes: employee.unpaidBreakMinutes || 0,
+      revenueCenter: employee.revenueCenter,
     },
   });
 
@@ -65,6 +68,7 @@ export function EmployeeEditDialog({ employee, onClose }: EmployeeEditDialogProp
         startTime: new Date(`${today}T${data.startTime}:00`),
         endTime: data.endTime ? new Date(`${today}T${data.endTime}:00`) : null,
         unpaidBreakMinutes: data.unpaidBreakMinutes,
+        revenueCenter: data.revenueCenter,
       };
       
       storage.updateEmployee(employee.id, updateData);
@@ -204,6 +208,29 @@ export function EmployeeEditDialog({ employee, onClose }: EmployeeEditDialogProp
                       {...field} 
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="revenueCenter"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Revenue Center</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger data-testid="select-revenue-center-edit">
+                        <SelectValue placeholder="Select Center" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="dining">Dining</SelectItem>
+                      <SelectItem value="lounge">Lounge</SelectItem>
+                      <SelectItem value="patio">Patio</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

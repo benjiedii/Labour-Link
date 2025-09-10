@@ -46,7 +46,14 @@ export function HistoricalLaborTracker({ employees, revenueCenters, calculateHou
     
     if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
     
-    const diffMs = end.getTime() - start.getTime();
+    let diffMs = end.getTime() - start.getTime();
+    
+    // Handle overnight shifts - if end time appears to be before start time,
+    // it means the shift crossed midnight, so add 24 hours
+    if (diffMs < 0) {
+      diffMs += 24 * 60 * 60 * 1000; // Add 24 hours in milliseconds
+    }
+    
     const totalHours = Math.max(0, diffMs / (1000 * 60 * 60));
     const unpaidBreakHours = (employee.unpaidBreakMinutes || 0) / 60;
     return Math.max(0, totalHours - unpaidBreakHours);

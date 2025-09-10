@@ -5,9 +5,10 @@ import { updateRevenueCenterSchema, type RevenueCenter, type Employee } from "@s
 import { storage } from "@/lib/localStorage";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Utensils, Wine, Leaf, LogOut } from "lucide-react";
 import { EmployeeEditDialog } from "./employee-edit-dialog";
 import { z } from "zod";
@@ -17,7 +18,12 @@ const updateCenterSchema = updateRevenueCenterSchema.extend({
   divisor: z.coerce.number().min(0.1, "Divisor must be greater than 0"),
 });
 
+const checkoutSchema = z.object({
+  endTime: z.string().min(1, "End time is required"),
+});
+
 type UpdateCenterFormData = z.infer<typeof updateCenterSchema>;
+type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
 interface RevenueCenterCardProps {
   center: RevenueCenter;
@@ -54,6 +60,8 @@ const centerConfig = {
 export function RevenueCenterCard({ center, employees, allEmployees, calculateHours, onDataChanged }: RevenueCenterCardProps) {
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState(false);
+  const [checkoutDialogOpen, setCheckoutDialogOpen] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   
   const config = centerConfig[center.name as keyof typeof centerConfig];
   const Icon = config?.icon || Utensils;
@@ -63,6 +71,13 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
     defaultValues: {
       sales: center.sales,
       divisor: center.divisor,
+    },
+  });
+
+  const checkoutForm = useForm<CheckoutFormData>({
+    resolver: zodResolver(checkoutSchema),
+    defaultValues: {
+      endTime: new Date().toTimeString().slice(0, 5),
     },
   });
 
@@ -92,15 +107,32 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
     }
   };
 
-  const handleCheckoutEmployee = async (employeeId: string) => {
+  const openCheckoutDialog = (employeeId: string) => {
+    setSelectedEmployeeId(employeeId);
+    setCheckoutDialogOpen(true);
+    // Reset form with current time
+    checkoutForm.reset({
+      endTime: new Date().toTimeString().slice(0, 5),
+    });
+  };
+
+  const handleCheckoutEmployee = async (data: CheckoutFormData) => {
+    if (!selectedEmployeeId) return;
+    
     try {
-      storage.updateEmployee(employeeId, { 
+      const today = new Date().toISOString().split('T')[0];
+      const endDateTime = new Date(`${today}T${data.endTime}:00`);
+      
+      storage.updateEmployee(selectedEmployeeId, { 
         isActive: "false",
-        endTime: new Date()
+        endTime: endDateTime
       });
       
       // Trigger event for other components to update
       window.dispatchEvent(new CustomEvent('localStorageUpdate'));
+      
+      setCheckoutDialogOpen(false);
+      setSelectedEmployeeId(null);
       
       toast({
         title: "Success",
@@ -236,7 +268,7 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleCheckoutEmployee(employee.id)}
+                        onClick={() => openCheckoutDialog(employee.id)}
                         disabled={false}
                         data-testid={`button-checkout-${employee.id}`}
                       >
@@ -289,6 +321,55 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
           )}
         </div>
       </CardContent>
+      
+      {/* Checkout Time Dialog */}
+      <Dialog open={checkoutDialogOpen} onOpenChange={setCheckoutDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Check Out Employee</DialogTitle>
+          </DialogHeader>
+          
+          <Form {...checkoutForm}>
+            <form onSubmit={checkoutForm.handleSubmit(handleCheckoutEmployee)} className="space-y-4">
+              <FormField
+                control={checkoutForm.control}
+                name="endTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Checkout Time</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="time" 
+                        data-testid="input-checkout-time"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="flex justify-end gap-2">
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={() => setCheckoutDialogOpen(false)}
+                  data-testid="button-cancel-checkout"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit"
+                  data-testid="button-confirm-checkout"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Check Out
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
