@@ -3,6 +3,7 @@ import { EmployeeCheckIn } from "../components/employee-check-in";
 import { RevenueCenterCard } from "../components/revenue-center-card";
 import { SummaryDashboard } from "../components/summary-dashboard";
 import { HistoricalLaborTracker } from "../components/historical-labor-tracker";
+import { ThemeToggle } from "../components/theme-toggle";
 import { storage } from "../lib/localStorage";
 import { BarChart3, Clock, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -137,9 +138,12 @@ export default function Dashboard() {
                 <BarChart3 className="text-blue-600 w-5 h-5 mr-2" />
                 <h1 className="text-lg font-semibold text-gray-900">Labour Link</h1>
               </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <Clock className="w-4 h-4 mr-1" />
-                {currentTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center text-sm text-gray-600">
+                  <Clock className="w-4 h-4 mr-1" />
+                  {currentTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                </div>
+                <ThemeToggle />
               </div>
             </div>
             <Button
@@ -165,6 +169,7 @@ export default function Dashboard() {
                 <Clock className="w-4 h-4 mr-1" />
                 Current Time: {currentTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
               </div>
+              <ThemeToggle />
               <Button
                 variant="outline"
                 size="sm"
