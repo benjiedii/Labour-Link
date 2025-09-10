@@ -65,7 +65,7 @@ export function SummaryDashboard({ employees, revenueCenters, calculateHours }: 
         {/* Performance Indicators */}
         <div>
           <h3 className="text-md font-semibold text-gray-900 mb-4">Performance Indicators</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 justify-items-center max-w-2xl mx-auto">
             <div className={`p-4 rounded-lg border ${isOverStaffed ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200'}`}>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700">Labor Efficiency</span>
@@ -87,8 +87,6 @@ export function SummaryDashboard({ employees, revenueCenters, calculateHours }: 
                 </p>
               </div>
             </div>
-            
-            
             
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center justify-between">
