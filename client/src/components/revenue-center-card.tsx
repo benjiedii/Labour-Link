@@ -69,8 +69,8 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
   const form = useForm<UpdateCenterFormData>({
     resolver: zodResolver(updateCenterSchema),
     defaultValues: {
-      sales: center.sales,
-      divisor: center.divisor,
+      sales: center.sales || 0,
+      divisor: center.divisor || 0,
     },
   });
 
@@ -150,8 +150,10 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
   };
 
   const totalHours = allEmployees.reduce((sum, emp) => sum + calculateHours(emp), 0);
-  const perfectHours = center.sales > 0 && center.divisor > 0 ? center.sales / center.divisor : 0;
-  const dollarsPerHour = totalHours > 0 ? center.sales / totalHours : 0;
+  const sales = Number(center.sales) || 0;
+  const divisor = Number(center.divisor) || 0;
+  const perfectHours = sales > 0 && divisor > 0 ? sales / divisor : 0;
+  const dollarsPerHour = totalHours > 0 ? sales / totalHours : 0;
 
   const handleFormChange = () => {
     const currentValues = form.getValues();
@@ -185,6 +187,8 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
                       step="0.01"
                       data-testid={`input-${center.name}-sales`}
                       {...field}
+                      value={field.value === 0 ? "" : String(field.value)}
+                      onChange={(e) => field.onChange(e.target.value === "" ? 0 : Number(e.target.value))}
                       onBlur={handleFormChange}
                     />
                   </FormControl>
@@ -205,6 +209,8 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
                       step="0.1"
                       data-testid={`input-${center.name}-divisor`}
                       {...field}
+                      value={field.value === 0 ? "" : String(field.value)}
+                      onChange={(e) => field.onChange(e.target.value === "" ? 0 : Number(e.target.value))}
                       onBlur={handleFormChange}
                     />
                   </FormControl>

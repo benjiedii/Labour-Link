@@ -10,10 +10,12 @@ interface SummaryDashboardProps {
 
 export function SummaryDashboard({ employees, revenueCenters, calculateHours }: SummaryDashboardProps) {
   const totalLaborHours = employees.reduce((sum, emp) => sum + calculateHours(emp), 0);
-  const totalSales = revenueCenters.reduce((sum, center) => sum + center.sales, 0);
+  const totalSales = revenueCenters.reduce((sum, center) => sum + (Number(center.sales) || 0), 0);
   const overallDollarsPerHour = totalLaborHours > 0 ? totalSales / totalLaborHours : 0;
   const totalPerfectHours = revenueCenters.reduce((sum, center) => {
-    return sum + (center.sales > 0 && center.divisor > 0 ? center.sales / center.divisor : 0);
+    const sales = Number(center.sales) || 0;
+    const divisor = Number(center.divisor) || 0;
+    return sum + (sales > 0 && divisor > 0 ? sales / divisor : 0);
   }, 0);
   
   const laborEfficiencyDiff = totalLaborHours - totalPerfectHours;
