@@ -81,8 +81,8 @@ export function EmployeeCheckIn({ onEmployeeAdded }: EmployeeCheckInProps) {
   return (
     <Card className="mb-6">
       <CardHeader>
-        <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-          <UserPlus className="text-blue-600 w-5 h-5 mr-2" />
+        <h2 className="text-lg font-semibold text-foreground flex items-center">
+          <UserPlus className="text-primary w-5 h-5 mr-2" />
           Employee Check-In
         </h2>
       </CardHeader>
@@ -151,7 +151,7 @@ export function EmployeeCheckIn({ onEmployeeAdded }: EmployeeCheckInProps) {
             <div className="flex items-end">
               <Button 
                 type="submit" 
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className="w-full"
                 disabled={isSubmitting}
                 data-testid="button-check-in"
               >

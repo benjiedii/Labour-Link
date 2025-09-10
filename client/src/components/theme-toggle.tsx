@@ -2,7 +2,11 @@ import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/theme-provider";
 
-export function ThemeToggle() {
+interface ThemeToggleProps {
+  variant?: "mobile" | "desktop";
+}
+
+export function ThemeToggle({ variant = "desktop" }: ThemeToggleProps) {
   const { theme, setTheme } = useTheme();
 
   const toggleTheme = () => {
@@ -14,7 +18,7 @@ export function ThemeToggle() {
       variant="outline"
       size="icon"
       onClick={toggleTheme}
-      data-testid="button-theme-toggle"
+      data-testid={variant === "mobile" ? "button-theme-toggle-mobile" : "button-theme-toggle-desktop"}
       className="h-9 w-9"
     >
       {theme === "light" ? (

@@ -127,30 +127,30 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 font-inter">
+    <div className="min-h-screen bg-background font-inter">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Mobile Header */}
           <div className="flex flex-col sm:hidden py-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <BarChart3 className="text-blue-600 w-5 h-5 mr-2" />
-                <h1 className="text-lg font-semibold text-gray-900">Labour Link</h1>
+                <BarChart3 className="text-primary w-5 h-5 mr-2" />
+                <h1 className="text-lg font-semibold text-foreground">Labour Link</h1>
               </div>
               <div className="flex items-center space-x-3">
-                <div className="flex items-center text-sm text-gray-600">
+                <div className="flex items-center text-sm text-muted-foreground">
                   <Clock className="w-4 h-4 mr-1" />
                   {currentTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                 </div>
-                <ThemeToggle />
+                <ThemeToggle variant="mobile" />
               </div>
             </div>
             <Button
-              variant="outline"
+              variant="destructive"
               size="sm"
               onClick={handleResetCalculator}
-              className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 w-full"
+              className="w-full"
               data-testid="button-reset-calculator"
             >
               <Trash2 className="w-4 h-4 mr-2" />
@@ -161,20 +161,19 @@ export default function Dashboard() {
           {/* Desktop Header */}
           <div className="hidden sm:flex justify-between items-center h-16">
             <div className="flex items-center">
-              <BarChart3 className="text-blue-600 w-6 h-6 mr-3" />
-              <h1 className="text-xl font-semibold text-gray-900">Labour Link Calculator</h1>
+              <BarChart3 className="text-primary w-6 h-6 mr-3" />
+              <h1 className="text-xl font-semibold text-foreground">Labour Link Calculator</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="flex items-center text-sm text-gray-600">
+              <div className="flex items-center text-sm text-muted-foreground">
                 <Clock className="w-4 h-4 mr-1" />
                 Current Time: {currentTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
               </div>
-              <ThemeToggle />
+              <ThemeToggle variant="desktop" />
               <Button
-                variant="outline"
+                variant="destructive"
                 size="sm"
                 onClick={handleResetCalculator}
-                className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
                 data-testid="button-reset-calculator"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
