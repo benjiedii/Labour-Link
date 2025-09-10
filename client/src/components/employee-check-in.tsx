@@ -97,7 +97,7 @@ export function EmployeeCheckIn({ onEmployeeAdded }: EmployeeCheckInProps) {
                   <FormLabel>Employee Name</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="Enter full name" 
+                      placeholder="Enter name" 
                       data-testid="input-employee-name"
                       {...field} 
                     />
