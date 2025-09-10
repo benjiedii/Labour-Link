@@ -222,17 +222,17 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
 
         {/* Metrics Display */}
         <div className="grid grid-cols-2 gap-4 my-4">
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
+          <div className="text-center p-3 bg-muted rounded-lg">
             <div className={`text-2xl font-bold ${config?.textColor || 'text-blue-600'}`} data-testid={`text-${center.name}-total-hours`}>
               {totalHours.toFixed(1)}
             </div>
-            <div className="text-sm text-gray-600">Total Hours</div>
+            <div className="text-sm text-muted-foreground">Total Hours</div>
           </div>
-          <div className="text-center p-3 bg-gray-50 rounded-lg">
+          <div className="text-center p-3 bg-muted rounded-lg">
             <div className="text-2xl font-bold text-green-600" data-testid={`text-${center.name}-perfect-hours`}>
               {perfectHours.toFixed(1)}
             </div>
-            <div className="text-sm text-gray-600">Perfect Hours</div>
+            <div className="text-sm text-muted-foreground">Perfect Hours</div>
           </div>
         </div>
 
@@ -240,12 +240,12 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
           <div className={`text-2xl font-bold ${config?.textColor || 'text-blue-600'}`} data-testid={`text-${center.name}-dollars-per-hour`}>
             ${dollarsPerHour.toFixed(2)}
           </div>
-          <div className="text-sm text-gray-700">Dollars per Hour</div>
+          <div className="text-sm text-muted-foreground">Dollars per Hour</div>
         </div>
 
         {/* Employee Groups */}
         <div>
-          <h4 className="text-sm font-medium text-gray-700 mb-3">
+          <h4 className="text-sm font-medium text-foreground mb-3">
             All Employees ({allEmployees.length})
           </h4>
           
@@ -254,20 +254,20 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <h5 className="text-xs font-semibold text-green-700 uppercase tracking-wide">
+                <h5 className="text-xs font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide">
                   Active ({employees.length})
                 </h5>
               </div>
               <div className="space-y-2">
                 {employees.map((employee) => (
-                  <div key={employee.id} className="flex justify-between items-center p-2 bg-green-50 border border-green-200 rounded">
+                  <div key={employee.id} className="flex justify-between items-center p-2 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-green-900" data-testid={`text-employee-${employee.id}`}>
+                      <span className="font-medium text-green-900 dark:text-green-100" data-testid={`text-employee-${employee.id}`}>
                         {employee.name}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-600" data-testid={`text-hours-${employee.id}`}>
+                      <span className="text-sm text-muted-foreground" data-testid={`text-hours-${employee.id}`}>
                         {calculateHours(employee).toFixed(1)}hrs
                       </span>
                       <EmployeeEditDialog employee={employee} />
@@ -294,20 +294,20 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                  <h5 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                     Clocked Out ({clockedOutEmployees.length})
                   </h5>
                 </div>
                 <div className="space-y-2">
                   {clockedOutEmployees.map((employee) => (
-                    <div key={employee.id} className="flex justify-between items-center p-2 bg-gray-50 border border-gray-200 rounded">
+                    <div key={employee.id} className="flex justify-between items-center p-2 bg-muted border border-border rounded">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-gray-600" data-testid={`text-employee-${employee.id}`}>
+                        <span className="font-medium text-muted-foreground" data-testid={`text-employee-${employee.id}`}>
                           {employee.name}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-600" data-testid={`text-hours-${employee.id}`}>
+                        <span className="text-sm text-muted-foreground" data-testid={`text-hours-${employee.id}`}>
                           {calculateHours(employee).toFixed(1)}hrs
                         </span>
                         <EmployeeEditDialog employee={employee} />
@@ -321,7 +321,7 @@ export function RevenueCenterCard({ center, employees, allEmployees, calculateHo
           
           {/* No Employees State */}
           {allEmployees.length === 0 && (
-            <div className="p-3 bg-gray-50 rounded text-center text-gray-500 text-sm">
+            <div className="p-3 bg-muted rounded text-center text-muted-foreground text-sm">
               No employees
             </div>
           )}
