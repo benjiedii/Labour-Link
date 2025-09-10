@@ -123,7 +123,32 @@ export default function Dashboard() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          {/* Mobile Header */}
+          <div className="flex flex-col sm:hidden py-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <BarChart3 className="text-blue-600 w-5 h-5 mr-2" />
+                <h1 className="text-lg font-semibold text-gray-900">Labor Hours</h1>
+              </div>
+              <div className="flex items-center text-sm text-gray-600">
+                <Clock className="w-4 h-4 mr-1" />
+                {currentTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleClearAllPunches}
+              className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 w-full"
+              data-testid="button-clear-all-punches"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Clear All Punches
+            </Button>
+          </div>
+          
+          {/* Desktop Header */}
+          <div className="hidden sm:flex justify-between items-center h-16">
             <div className="flex items-center">
               <BarChart3 className="text-blue-600 w-6 h-6 mr-3" />
               <h1 className="text-xl font-semibold text-gray-900">Labor Hours Calculator</h1>
