@@ -34,12 +34,19 @@ export default function Dashboard() {
     }
   };
 
-  const handleClearAllPunches = () => {
-    const confirmMessage = `Are you sure you want to clear all employee punches? This will remove all current and historical employee data. This action cannot be undone.`;
+  const handleResetCalculator = () => {
+    const confirmMessage = `Are you sure you want to reset the calculator? This will clear all employee data and reset all sales values to zero. This action cannot be undone.`;
     
     if (confirm(confirmMessage)) {
       try {
+        // Clear all employees
         storage.clearAllEmployees();
+        
+        // Reset all revenue center sales to 0
+        const centers = storage.getRevenueCenters();
+        centers.forEach(center => {
+          storage.updateRevenueCenter(center.name, { sales: 0 });
+        });
         
         // Trigger event for other components to update
         window.dispatchEvent(new CustomEvent('localStorageUpdate'));
@@ -48,12 +55,12 @@ export default function Dashboard() {
         
         toast({
           title: "Success",
-          description: "All employee punches have been cleared",
+          description: "Calculator has been reset - all data cleared",
         });
       } catch (error) {
         toast({
           title: "Error",
-          description: "Failed to clear employee punches",
+          description: "Failed to reset calculator",
           variant: "destructive",
         });
       }
@@ -138,12 +145,12 @@ export default function Dashboard() {
             <Button
               variant="outline"
               size="sm"
-              onClick={handleClearAllPunches}
+              onClick={handleResetCalculator}
               className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 w-full"
-              data-testid="button-clear-all-punches"
+              data-testid="button-reset-calculator"
             >
               <Trash2 className="w-4 h-4 mr-2" />
-              Clear All Punches
+              Reset Calculator
             </Button>
           </div>
           
@@ -161,12 +168,12 @@ export default function Dashboard() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleClearAllPunches}
+                onClick={handleResetCalculator}
                 className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
-                data-testid="button-clear-all-punches"
+                data-testid="button-reset-calculator"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                Clear All Punches
+                Reset Calculator
               </Button>
             </div>
           </div>
